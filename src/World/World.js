@@ -4,8 +4,19 @@ import { Renderer } from "../Systems/Renderer.js";
 import { Loop } from '../Systems/Loop.js';
 import { Cube } from "../Components/Cube.js";
 import { Resizer } from "../Systems/Resizer.js";
+import { Model } from "../Components/Model.js"
 
-import { BoxGeometry, MeshStandardMaterial, Mesh, AmbientLight, DirectionalLight } from "https://cdn.skypack.dev/three@0.132.2";
+import { AmbientLight, DirectionalLight, GridHelper, Vector3 } from "three";
+
+var world;
+
+function getWorld() {
+    return world;
+}
+
+function setWorld(inWorld) {
+    world = inWorld;
+}
 
 class World {
     constructor(container) {
@@ -14,15 +25,22 @@ class World {
         this.renderer = new Renderer();
         this.loop = new Loop(this.camera, this.scene, this.renderer);
 
-        this.cube = new Cube();
-
         var ambientLight = new AmbientLight(0xcccccc, 0.5);
         const directionalLight = new DirectionalLight(0xffffff, 8.0);
-        directionalLight.position.set(10, 10, 10);
+        directionalLight.position.set(200, 100, 100);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.top = 180;
+        directionalLight.shadow.camera.bottom = - 100;
+        directionalLight.shadow.camera.left = - 120;
+        directionalLight.shadow.camera.right = 120;
 
+        const grid = new GridHelper(2048, 2048 / 128, 0x000000, 0x000000);
+        grid.position.add(new Vector3(0.0, -1, 0.0))
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        this.scene.add(grid);
 
         this.scene.add(this.camera);
-        this.scene.add(this.cube);
         this.scene.add(ambientLight);
         this.scene.add(directionalLight);
 
@@ -40,4 +58,4 @@ class World {
     }
 }
 
-export { World };
+export { World, getWorld, setWorld };

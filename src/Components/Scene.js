@@ -1,4 +1,4 @@
-import { Color, Scene as ThreeScene } from "https://cdn.skypack.dev/three@0.132.2";
+import { Color, Scene as ThreeScene } from "three";
 
 class Scene extends ThreeScene {
     constructor() {

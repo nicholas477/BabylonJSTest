@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshStandardMaterial, Mesh, AmbientLight, DirectionalLight } from "https://cdn.skypack.dev/three@0.132.2";
+import { BoxGeometry, MeshStandardMaterial, Mesh, AmbientLight, DirectionalLight } from "three";
 import { registerTicker } from "../Systems/Loop.js";
 
 class Cube extends Mesh {

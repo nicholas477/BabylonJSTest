@@ -1,4 +1,4 @@
-import { Clock } from "https://cdn.skypack.dev/three@0.132.2";
+import { Clock } from "three";
 
 var updatables = [];
 const clock = new Clock();

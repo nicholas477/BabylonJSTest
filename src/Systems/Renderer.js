@@ -1,4 +1,4 @@
-import { WebGLRenderer } from "https://cdn.skypack.dev/three@0.132.2";
+import { WebGLRenderer } from "three";
 
 class Renderer extends WebGLRenderer {
     constructor() {
@@ -6,6 +6,7 @@ class Renderer extends WebGLRenderer {
         this.setPixelRatio(window.devicePixelRatio);
         this.setSize(window.innerWidth, window.innerHeight);
         this.physicallyCorrectLights = true;
+        this.shadowMap.enabled = true;
     }
 }
 
