@@ -2,7 +2,7 @@ import { Camera } from "../Components/Camera.js";
 import { Scene } from "../Components/Scene.js";
 import { Renderer } from "../Systems/Renderer.js";
 import { Loop } from '../Systems/Loop.js';
-import { Cube } from "../Components/Cube.js";
+import { Floor } from "../Components/Floor.js";
 import { Resizer } from "../Systems/Resizer.js";
 import { Model } from "../Components/Model.js"
 
@@ -33,6 +33,9 @@ class World {
         directionalLight.shadow.camera.bottom = - 100;
         directionalLight.shadow.camera.left = - 120;
         directionalLight.shadow.camera.right = 120;
+
+        const floor = new Floor();
+        this.scene.add(floor);
 
         const grid = new GridHelper(2048, 2048 / 128, 0x000000, 0x000000);
         grid.position.add(new Vector3(0.0, -1, 0.0))
