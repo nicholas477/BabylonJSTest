@@ -1,19 +1,3 @@
-import {
-    AmbientLight,
-    DirectionalLight,
-    BoxBufferGeometry,
-    BoxGeometry,
-    Color,
-    Mesh,
-    MeshBasicMaterial,
-    MeshPhongMaterial,
-    PerspectiveCamera,
-    Scene,
-    WebGLRenderer,
-    OrthographicCamera,
-    Vector3
-} from "https://cdn.skypack.dev/three@0.132.2";
-
 import { World, setWorld } from "./World/World.js";
 import { registerInputSystem } from "./Systems/Input.js";
 
