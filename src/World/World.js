@@ -29,10 +29,12 @@ function setWorld(inWorld) {
 
 class World {
     constructor(container) {
+        setWorld(this);
+
         this.container = container;
         this.camera = new OrthoCamera();
-        this.scene = new Scene();
         this.renderer = new Renderer();
+        this.scene = new Scene();
 
         // Init gui
         gui = new GUI();
@@ -130,7 +132,6 @@ class World {
         //this.composer.addPass(bloomPass);
 
         const renderPixelatedPass = new RenderPixelatedPass(3, this.scene, this.camera);
-        console.log(renderPixelatedPass);
         renderPixelatedPass.depthEdgeStrength = 1.0;
         renderPixelatedPass.normalEdgeStrength = 0.1;
         gui.add(renderPixelatedPass, 'enabled');

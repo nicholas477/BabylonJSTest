@@ -52,10 +52,12 @@ class CameraControl {
             const [currentPosX, currentPosY] = getKeyValue('pointerpos');
             const [lastPosX, lastPosY] = this.lastFramePointerPos;
             const positionOffset = new Vector3(-(currentPosX - lastPosX), currentPosY - lastPosY, 0.0);
+            //const positionOffset = new Vector3(1.0, 0, 1.0).multiplyScalar(currentPosY - lastPosY);
+            //positionOffset.add(new Vector3(1.0, 0, -1.0).multiplyScalar(currentPosX - lastPosX));
             positionOffset.multiplyScalar(0.01);
             positionOffset.applyMatrix3(new Matrix3().setFromMatrix4(this.camera.matrix));
-            const posOffsetLength = positionOffset.length();
-            positionOffset.multiply(new Vector3(1.0, 0.0, 1.0)).normalize().multiplyScalar(posOffsetLength);
+            //const posOffsetLength = positionOffset.length();
+            //positionOffset.multiply(new Vector3(1.0, 0.0, 1.0)).normalize().multiplyScalar(posOffsetLength);
             this.camera.position.add(positionOffset);
 
             this.lastFramePointerPos = getKeyValue('pointerpos');
