@@ -17,7 +17,7 @@ class Camera extends OrthographicCamera {
         registerTicker(this);
     }
 
-    tick(deltaTime) {
+    tickCameraWASDMovement(deltaTime) {
         let cameraTarget = new Vector3(0, 0, 0);
         cameraTarget.add(new Vector3(this.cameraSpeed, 0, this.cameraSpeed).multiplyScalar(getKeyValue('w')));
         cameraTarget.add(new Vector3(this.cameraSpeed, 0, -this.cameraSpeed).multiplyScalar(getKeyValue('a')));
@@ -26,6 +26,15 @@ class Camera extends OrthographicCamera {
         this.velocity.lerp(cameraTarget, 1 - Math.exp(-this.cameraLagSpeed * deltaTime));
 
         this.position.add(new Vector3().copy(this.velocity).multiplyScalar(deltaTime));
+    }
+
+    tickCameraZoomMovement(deltaTime) {
+
+    }
+
+    tick(deltaTime) {
+        tickCameraWASDMovement(deltaTime);
+        tickCameraZoomMovement(deltaTime);
     }
 }
 
