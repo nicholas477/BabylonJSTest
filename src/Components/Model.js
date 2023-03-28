@@ -11,7 +11,6 @@ loader.load(
         object.traverse(function (child) {
 
             if (child.isMesh) {
-                console.log(child.material);
                 child.material = new MeshStandardMaterial({ color: 0x00ffff });
                 child.receiveShadow = true;
                 child.castShadow = true;

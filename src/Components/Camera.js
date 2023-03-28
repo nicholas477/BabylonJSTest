@@ -7,7 +7,7 @@ var logged = false;
 
 class Camera extends OrthographicCamera {
     constructor() {
-        super(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0, 10000);
+        super(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -1000, 10000);
         this.position.set(-500, 500, -500);
         this.lookAt(new Vector3(0, 0, 0));
 

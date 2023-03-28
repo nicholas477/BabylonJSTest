@@ -29,9 +29,4 @@ function main() {
     world.start();
 }
 
-function render() {
-    renderer.render(scene, camera); 	// We are rendering the 3D world
-    requestAnimationFrame(render);	// we are calling render() again,  to loop
-}
-
 main();

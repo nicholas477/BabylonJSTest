@@ -7,6 +7,7 @@ import { Resizer } from "../Systems/Resizer.js";
 import { Model } from "../Components/Model.js"
 
 import { AmbientLight, DirectionalLight, GridHelper, Vector3 } from "three";
+import { MapControls } from 'three/addons/controls/OrbitControls.js';
 
 var world;
 
@@ -25,7 +26,7 @@ class World {
         this.renderer = new Renderer();
         this.loop = new Loop(this.camera, this.scene, this.renderer);
 
-        var ambientLight = new AmbientLight(0xcccccc, 0.5);
+        var ambientLight = new AmbientLight(0xcccccc, 1.0);
         const directionalLight = new DirectionalLight(0xffffff, 8.0);
         directionalLight.position.set(200, 100, 100);
         directionalLight.castShadow = true;
@@ -47,7 +48,7 @@ class World {
         this.scene.add(ambientLight);
         this.scene.add(directionalLight);
 
-        container.append(this.renderer.domElement);
+        container.appendChild(this.renderer.domElement);
 
         const resizer = new Resizer(container, this.camera, this.renderer);
     }
