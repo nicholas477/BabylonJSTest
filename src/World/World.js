@@ -29,6 +29,7 @@ function setWorld(inWorld) {
 
 class World {
     constructor(container) {
+        this.container = container;
         this.camera = new OrthoCamera();
         this.scene = new Scene();
         this.renderer = new Renderer();
@@ -154,6 +155,10 @@ class World {
 
     getTime() {
         return this.loop.getTime();
+    }
+
+    getContainer() {
+        return this.container;
     }
 }
 

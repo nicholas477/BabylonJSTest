@@ -1,4 +1,4 @@
-import { OrthographicCamera, PerspectiveCamera, Vector3, Vector4 } from "three";
+import { OrthographicCamera, PerspectiveCamera, Vector3, Vector4, Matrix3, Matrix4 } from "three";
 import { registerTicker } from "../Systems/Loop.js";
 import { getKeyValue, registerWheelListener } from "../Systems/Input.js";
 import { v3damp } from "../Utils/VectorUtils.js"
@@ -19,6 +19,9 @@ class CameraControl {
         this.cameraZoomMin = 1.0;
         this.cameraZoomMax = 2.5;
 
+        this.pointerDown = false;
+        this.lastFramePointerPos = (0, 0);
+
         registerTicker(this);
         registerWheelListener(this);
     }
@@ -30,9 +33,33 @@ class CameraControl {
         cameraTarget.add(new Vector3(-this.cameraSpeed, 0, -this.cameraSpeed).multiplyScalar(getKeyValue('s')));
         cameraTarget.add(new Vector3(-this.cameraSpeed, 0, this.cameraSpeed).multiplyScalar(getKeyValue('d')));
         cameraTarget.multiplyScalar(1.0 / this.camera.zoom);
-        this.velocity.lerp(cameraTarget, 1 - Math.exp(-this.cameraLagSpeed * deltaTime));
 
+        this.velocity.lerp(cameraTarget, 1 - Math.exp(-this.cameraLagSpeed * deltaTime));
         this.camera.position.add(new Vector3().copy(this.velocity).multiplyScalar(deltaTime));
+    }
+
+    tickCameraMouseMovement(deltaTime) {
+        const isMouseDown = getKeyValue('pointerdown') !== null ? getKeyValue('pointerdown') > 0.5 : false;
+
+        if (isMouseDown != this.pointerDown) {
+            if (isMouseDown) {
+                this.lastFramePointerPos = getKeyValue('pointerpos');
+            }
+            this.pointerDown = isMouseDown;
+        }
+
+        if (this.pointerDown) {
+            const [currentPosX, currentPosY] = getKeyValue('pointerpos');
+            const [lastPosX, lastPosY] = this.lastFramePointerPos;
+            const positionOffset = new Vector3(-(currentPosX - lastPosX), currentPosY - lastPosY, 0.0);
+            positionOffset.multiplyScalar(0.01);
+            positionOffset.applyMatrix3(new Matrix3().setFromMatrix4(this.camera.matrix));
+            const posOffsetLength = positionOffset.length();
+            positionOffset.multiply(new Vector3(1.0, 0.0, 1.0)).normalize().multiplyScalar(posOffsetLength);
+            this.camera.position.add(positionOffset);
+
+            this.lastFramePointerPos = getKeyValue('pointerpos');
+        }
     }
 
     tickCameraZoomMovement(deltaTime) {
@@ -52,6 +79,7 @@ class CameraControl {
 
     tick(deltaTime) {
         this.tickCameraWASDMovement(deltaTime);
+        this.tickCameraMouseMovement(deltaTime);
         this.tickCameraZoomMovement(deltaTime);
     }
 }
