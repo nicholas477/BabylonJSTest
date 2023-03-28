@@ -1,4 +1,5 @@
 import { Clock } from "three";
+import Stats from 'three/addons/libs/stats.module.js';
 
 var updatables = [];
 const clock = new Clock();
@@ -8,10 +9,16 @@ function registerTicker(object) {
 }
 
 class Loop {
-    constructor(camera, scene, renderer) {
+    constructor(container, camera, scene, renderer, composer) {
         this.camera = camera;
         this.scene = scene;
         this.renderer = renderer;
+        this.deltaTime = 1000 / 60;
+
+        this.stats = new Stats();
+        container.appendChild(this.stats.domElement);
+
+        this.composer = composer;
     }
 
     start() {
@@ -19,7 +26,10 @@ class Loop {
             this.tick();
 
             // render a frame
+            this.stats.begin();
             this.renderer.render(this.scene, this.camera);
+            this.composer.render();
+            this.stats.end();
         });
     }
 
@@ -28,11 +38,19 @@ class Loop {
     }
 
     tick() {
-        const delta = clock.getDelta();
+        this.deltaTime = clock.getDelta();
 
         for (const object of updatables) {
-            object.tick(delta);
+            object.tick(this.deltaTime);
         }
+    }
+
+    getDeltaTime() {
+        return this.deltaTime;
+    }
+
+    getTime() {
+        return clock.elapsedTime;
     }
 }
 

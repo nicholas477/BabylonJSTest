@@ -1,4 +1,4 @@
-import { WebGLRenderer } from "three";
+import { WebGLRenderer, ACESFilmicToneMapping, sRGBEncoding, NoToneMapping } from "three";
 
 class Renderer extends WebGLRenderer {
     constructor() {
@@ -7,6 +7,10 @@ class Renderer extends WebGLRenderer {
         this.setSize(window.innerWidth, window.innerHeight);
         this.physicallyCorrectLights = true;
         this.shadowMap.enabled = true;
+        this.gammaFactor = 2.2;
+        this.toneMapping = ACESFilmicToneMapping;
+        this.toneMappingExposure = 0.85;
+        this.outputEncoding = sRGBEncoding;
     }
 }
 

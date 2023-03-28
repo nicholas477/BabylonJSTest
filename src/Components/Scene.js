@@ -1,10 +1,13 @@
-import { Color, Scene as ThreeScene, Fog } from "three";
+import { Color, Scene as ThreeScene, Fog, EquirectangularReflectionMapping } from "three";
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 class Scene extends ThreeScene {
     constructor() {
         super();
-        this.background = new Color('skyblue');
-        this.fog = new Fog(0xa0a0a0, 200, 4096);
+        this.background = new Color('white');
+        this.fog = new Fog('white', 1024, 4096);
+        this.environment = new RGBELoader().load('assets/textures/equirectangular/venice_sunset_1k.hdr');
+        this.environment.mapping = EquirectangularReflectionMapping;
     }
 }
 

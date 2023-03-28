@@ -1,4 +1,4 @@
-import { MeshStandardMaterial, Mesh } from "three";
+import { MeshPhysicalMaterial, MeshLambertMaterial, Mesh, Vector3 } from "three";
 import { getWorld } from "../World/World.js";
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
@@ -11,7 +11,40 @@ loader.load(
         object.traverse(function (child) {
 
             if (child.isMesh) {
-                child.material = new MeshStandardMaterial({ color: 0x00ffff });
+                child.material = new MeshPhysicalMaterial({ metalness: 1.0, color: 0xf0f0f0, roughness: 0.0 });
+                child.receiveShadow = true;
+                child.castShadow = true;
+            }
+
+        });
+
+        console.log(object);
+        getWorld().scene.add(object);
+
+    },
+    // called when loading is in progresses
+    function (xhr) {
+
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+    },
+    // called when loading has errors
+    function (error) {
+
+        console.log('An error happened');
+
+    }
+);
+
+loader.load(
+    // resource URL
+    'assets/kaiju.obj',
+    // called when resource is loaded
+    function (object) {
+        object.traverse(function (child) {
+
+            if (child.isMesh) {
+                child.material = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xf0f0f0, roughness: 0.0 });
                 child.receiveShadow = true;
                 child.castShadow = true;
             }
