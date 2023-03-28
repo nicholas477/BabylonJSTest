@@ -5,9 +5,12 @@ import { Loop } from '../Systems/Loop.js';
 import { Floor } from "../Components/Floor.js";
 import { Resizer } from "../Systems/Resizer.js";
 import { Model } from "../Components/Model.js"
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 
 import { AmbientLight, DirectionalLight, GridHelper, Vector3 } from "three";
 import { MapControls } from 'three/addons/controls/OrbitControls.js';
+
+import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
 
 var world;
 
@@ -25,7 +28,11 @@ class World {
         this.scene = new Scene();
         this.renderer = new Renderer();
         this.loop = new Loop(this.camera, this.scene, this.renderer);
-
+        const composer = new EffectComposer(this.renderer);
+        const ssaoPass = new SSAOPass(this.scene, this.camera, 0, 0.1, 0.1, 0.1);
+        ssaoPass.kernelRadius = 16;
+        composer.addPass( ssaoPass );
+        
         var ambientLight = new AmbientLight(0xcccccc, 1.0);
         const directionalLight = new DirectionalLight(0xffffff, 8.0);
         directionalLight.position.set(200, 100, 100);
