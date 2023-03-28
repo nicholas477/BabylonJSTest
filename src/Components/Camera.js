@@ -12,7 +12,7 @@ class CameraControl {
         this.camera = camera;
 
         this.velocity = new Vector3(0, 0, 0);
-        this.cameraSpeed = 1000.0;
+        this.cameraSpeed = 1500.0;
         this.cameraLagSpeed = 10.0;
 
         this.cameraZoomInputScale = 0.25;
@@ -31,7 +31,7 @@ class CameraControl {
         cameraTarget.add(new Vector3(this.cameraSpeed, 0, -this.cameraSpeed).multiplyScalar(getKeyValue('a')));
         cameraTarget.add(new Vector3(-this.cameraSpeed, 0, -this.cameraSpeed).multiplyScalar(getKeyValue('s')));
         cameraTarget.add(new Vector3(-this.cameraSpeed, 0, this.cameraSpeed).multiplyScalar(getKeyValue('d')));
-
+        cameraTarget.multiplyScalar(1.0 / this.camera.zoom);
         this.velocity.lerp(cameraTarget, 1 - Math.exp(-this.cameraLagSpeed * deltaTime));
 
         this.camera.position.add(new Vector3().copy(this.velocity).multiplyScalar(deltaTime));

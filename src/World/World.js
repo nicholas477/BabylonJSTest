@@ -7,13 +7,16 @@ import { Resizer } from "../Systems/Resizer.js";
 import { Model } from "../Components/Model.js"
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 
-import { AmbientLight, HemisphereLight, DirectionalLight, GridHelper, Vector3 } from "three";
+import { AmbientLight, HemisphereLight, DirectionalLight, GridHelper, Vector3, Vector2 } from "three";
 import { MapControls } from 'three/addons/controls/OrbitControls.js';
 
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { GUI } from 'three/addons/libs/dat.gui.module.js';
 
 var world;
+var gui;
 
 function getWorld() {
     return world;
@@ -28,37 +31,15 @@ class World {
         this.camera = new OrthoCamera();
         this.scene = new Scene();
         this.renderer = new Renderer();
-        this.composer = new EffectComposer(this.renderer);
-
-        const ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);
-        ssaoPass.minDistance = 0.5;
-        ssaoPass.maxDistance = 5.0;
-        ssaoPass.kernelRadius = 16;
-        console.log(ssaoPass);
-        //this.composer.addPass(ssaoPass);
 
         // Init gui
-        const gui = new GUI();
+        gui = new GUI();
+        gui.add(this.renderer, 'toneMappingExposure', 0.1, 2);
 
-        gui.add(ssaoPass, 'output', {
-            'Default': SSAOPass.OUTPUT.Default,
-            'SSAO Only': SSAOPass.OUTPUT.SSAO,
-            'SSAO Only + Blur': SSAOPass.OUTPUT.Blur,
-            'Beauty': SSAOPass.OUTPUT.Beauty,
-            'Depth': SSAOPass.OUTPUT.Depth,
-            'Normal': SSAOPass.OUTPUT.Normal
-        }).onChange(function (value) {
-
-            ssaoPass.output = parseInt(value);
-
-        });
-        gui.add(ssaoPass, 'kernelRadius').min(0).max(2048);
-        gui.add(ssaoPass, 'minDistance').min(0.001).max(1024.0);
-        gui.add(ssaoPass, 'maxDistance').min(0.01).max(1024.0);
 
         this.addLighting();
 
-        this.loop = new Loop(container, this.camera, this.scene, this.renderer, this.composer);
+        this.loop = new Loop(container, this.camera, this.scene, this.renderer);
 
         const floor = new Floor();
         this.scene.add(floor);
@@ -71,6 +52,8 @@ class World {
 
         this.scene.add(this.camera);
 
+        this.addPostProcessing();
+
         container.appendChild(this.renderer.domElement);
 
         const resizer = new Resizer(container, this.camera, this.renderer);
@@ -80,9 +63,11 @@ class World {
         const hemiLight = new HemisphereLight(
             0xffeeb1, // bright sky color
             0x080820, // dim ground color
-            3.0, // intensity
+            2.0, // intensity
         );
         this.scene.add(hemiLight);
+
+        gui.add(hemiLight, 'intensity').min(0).max(10);
 
         // var ambientLight = new AmbientLight(0xcccccc, 0.0);
         // this.scene.add(ambientLight);
@@ -102,6 +87,30 @@ class World {
         }
         registerTicker(directionalLight);
         this.scene.add(directionalLight);
+    }
+
+    addPostProcessing() {
+        this.composer = new EffectComposer(this.renderer);
+
+        const renderScene = new RenderPass(this.scene, this.camera);
+
+        // const ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);
+        // ssaoPass.minDistance = 0.5;
+        // ssaoPass.maxDistance = 5.0;
+        // ssaoPass.kernelRadius = 16;
+        //this.composer.addPass(ssaoPass);
+
+        const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
+        gui.add(bloomPass, 'threshold').min(0).max(10);
+        gui.add(bloomPass, 'strength').min(0).max(10);
+        gui.add(bloomPass, 'radius').min(0).max(10);
+        // bloomPass.threshold = params.bloomThreshold;
+        // bloomPass.strength = params.bloomStrength;
+        // bloomPass.radius = params.bloomRadius;
+        this.composer.addPass(renderScene);
+        //this.composer.addPass(bloomPass);
+
+        this.loop.setPostProcessingComposer(this.composer);
     }
 
     start() {

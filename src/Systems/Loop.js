@@ -9,7 +9,7 @@ function registerTicker(object) {
 }
 
 class Loop {
-    constructor(container, camera, scene, renderer, composer) {
+    constructor(container, camera, scene, renderer) {
         this.camera = camera;
         this.scene = scene;
         this.renderer = renderer;
@@ -17,7 +17,9 @@ class Loop {
 
         this.stats = new Stats();
         container.appendChild(this.stats.domElement);
+    }
 
+    setPostProcessingComposer(composer) {
         this.composer = composer;
     }
 
@@ -28,7 +30,9 @@ class Loop {
             // render a frame
             this.stats.begin();
             this.renderer.render(this.scene, this.camera);
-            this.composer.render();
+            if (this.composer !== null) {
+                this.composer.render();
+            }
             this.stats.end();
         });
     }
