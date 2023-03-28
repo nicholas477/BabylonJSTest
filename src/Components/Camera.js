@@ -33,8 +33,8 @@ class Camera extends OrthographicCamera {
     }
 
     tick(deltaTime) {
-        tickCameraWASDMovement(deltaTime);
-        tickCameraZoomMovement(deltaTime);
+        this.tickCameraWASDMovement(deltaTime);
+        this.tickCameraZoomMovement(deltaTime);
     }
 }
 
