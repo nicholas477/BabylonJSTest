@@ -1,18 +1,16 @@
-import { OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
+import { OrthographicCamera, PerspectiveCamera, Vector3, Vector4 } from "three";
 import { registerTicker } from "../Systems/Loop.js";
 import { getKeyValue, registerWheelListener } from "../Systems/Input.js";
 import { v3damp } from "../Utils/VectorUtils.js"
 import { getWorld } from "../World/World.js";
 import { MathUtils } from "three";
 
-var logged = false;
-
 class CameraControl {
     constructor(camera) {
         this.camera = camera;
 
         this.velocity = new Vector3(0, 0, 0);
-        this.cameraSpeed = 1500.0;
+        this.cameraSpeed = 15.0;
         this.cameraLagSpeed = 10.0;
 
         this.cameraZoomInputScale = 0.25;
@@ -61,7 +59,9 @@ class CameraControl {
 class OrthoCamera extends OrthographicCamera {
     constructor() {
         super(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0, 4096);
-        this.position.set(-1024, 1024, -1024);
+        const position = new Vector3(-10.24, 10.24, -10.24);
+        position.multiplyScalar(1.0);
+        this.position.copy(position);
         this.lookAt(new Vector3(0, 0, 0));
 
         this.control = new CameraControl(this);
@@ -69,15 +69,25 @@ class OrthoCamera extends OrthographicCamera {
     }
 
     resize() {
-        this.left = window.innerWidth / -this.zoom;
-
-        this.right = window.innerWidth / this.zoom;
-
-        this.top = window.innerHeight / this.zoom;
-
-        this.bottom = window.innerHeight / -this.zoom;
-
+        const frustrum = this.getCameraFrustum();
+        this.left = frustrum.x;
+        this.right = frustrum.y;
+        this.top = frustrum.z;
+        this.bottom = frustrum.w;
         this.updateProjectionMatrix();
+    }
+
+    getCameraFrustum() {
+        const frustrum = new Vector4(
+            window.innerWidth / -this.zoom, // left
+            window.innerWidth / this.zoom,  // right
+            window.innerHeight / this.zoom, // top
+            window.innerHeight / -this.zoom // bottom
+        );
+
+        frustrum.multiplyScalar(0.01);
+
+        return frustrum;
     }
 }
 

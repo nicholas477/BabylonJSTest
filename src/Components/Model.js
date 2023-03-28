@@ -2,6 +2,7 @@ import { MeshPhysicalMaterial, MeshLambertMaterial, Mesh, Vector3 } from "three"
 import { getWorld } from "../World/World.js";
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
+const defaultMaterial = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xf0f0f0, roughness: 0.33333 });
 const loader = new OBJLoader();
 loader.load(
     // resource URL
@@ -11,7 +12,7 @@ loader.load(
         object.traverse(function (child) {
 
             if (child.isMesh) {
-                child.material = new MeshPhysicalMaterial({ metalness: 1.0, color: 0xf0f0f0, roughness: 0.0 });
+                child.material = defaultMaterial;
                 child.receiveShadow = true;
                 child.castShadow = true;
             }
@@ -19,6 +20,7 @@ loader.load(
         });
 
         console.log(object);
+        object.scale.setScalar(0.01);
         getWorld().scene.add(object);
 
     },
@@ -44,14 +46,14 @@ loader.load(
         object.traverse(function (child) {
 
             if (child.isMesh) {
-                child.material = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xf0f0f0, roughness: 0.0 });
+                child.material = defaultMaterial;
                 child.receiveShadow = true;
                 child.castShadow = true;
             }
 
         });
 
-        console.log(object);
+        object.scale.setScalar(0.01);
         getWorld().scene.add(object);
 
     },

@@ -1,11 +1,11 @@
-import { WebGLRenderer, ACESFilmicToneMapping, sRGBEncoding, NoToneMapping } from "three";
+import { WebGLRenderer, ACESFilmicToneMapping, sRGBEncoding, PCFSoftShadowMap } from "three";
 
 class Renderer extends WebGLRenderer {
     constructor() {
         super({ antialias: true });
         this.setPixelRatio(window.devicePixelRatio);
         this.setSize(window.innerWidth, window.innerHeight);
-        this.physicallyCorrectLights = true;
+        this.shadowMap.type = PCFSoftShadowMap;
         this.shadowMap.enabled = true;
         this.gammaFactor = 2.2;
         this.toneMapping = ACESFilmicToneMapping;
