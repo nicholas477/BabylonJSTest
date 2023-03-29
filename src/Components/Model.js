@@ -1,8 +1,9 @@
-import { MeshPhysicalMaterial, MeshLambertMaterial, Mesh, Vector3, TextureLoader, NearestFilter, RepeatWrapping } from "three";
+import { MeshPhysicalMaterial, MeshLambertMaterial, Mesh, Vector3, TextureLoader, NearestFilter, RepeatWrapping, PerspectiveCamera } from "three";
 import { getWorld } from "../World/World.js";
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { pixelTexture } from "../Utils/Texture.js";
 import { registerTicker } from "../Systems/Loop.js";
+import { ThirdPersonController } from "./ThirdPersonController.js";
 
 const texLoader = new TextureLoader();
 const texChecker = pixelTexture(texLoader.load('assets/textures/checker.png'));
@@ -34,12 +35,6 @@ loader.load(
 
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
 
-    },
-    // called when loading has errors
-    function (error) {
-
-        console.log('An error happened');
-
     }
 );
 
@@ -58,10 +53,13 @@ loader.load(
 
         });
 
-        object.tick = (deltaTime) => {
-            object.rotation.y = getWorld().getTime();
+        getWorld().setCamera(new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000));
+        getWorld().camera.resize = () => {
+            getWorld().camera.aspect = window.innerWidth / window.innerHeight;
+            getWorld().camera.updateProjectionMatrix();
         }
-        registerTicker(object);
+        new ThirdPersonController(getWorld().camera, object);
+
         object.scale.setScalar(0.01);
         getWorld().scene.add(object);
         getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
@@ -71,12 +69,6 @@ loader.load(
     function (xhr) {
 
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-    },
-    // called when loading has errors
-    function (error) {
-
-        console.log('An error happened');
 
     }
 );

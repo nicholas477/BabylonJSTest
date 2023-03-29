@@ -95,16 +95,19 @@ class World {
         directionalLight.tick = (deltaTime) => {
             let time = getWorld().getTime() / 30.0;
 
-            const shadowFrustrum = getWorld().camera.getCameraFrustum();
-            directionalLight.shadow.camera.top = shadowFrustrum.z;
-            directionalLight.shadow.camera.bottom = shadowFrustrum.w;
-            directionalLight.shadow.camera.left = shadowFrustrum.x;
-            directionalLight.shadow.camera.right = shadowFrustrum.y;
-            directionalLight.shadow.camera.updateProjectionMatrix();
+            if (getWorld().camera instanceof OrthoCamera) {
+                const shadowFrustrum = getWorld().camera.getCameraFrustum();
+                directionalLight.shadow.camera.top = shadowFrustrum.z;
+                directionalLight.shadow.camera.bottom = shadowFrustrum.w;
+                directionalLight.shadow.camera.left = shadowFrustrum.x;
+                directionalLight.shadow.camera.right = shadowFrustrum.y;
+                directionalLight.shadow.camera.updateProjectionMatrix();
+            }
 
             directionalLight.position.set(Math.sin(time) * 200, 200, Math.cos(time) * 100);
             directionalLight.lookAt(new Vector3(0, 0, 0));
         }
+
         registerTicker(directionalLight);
         this.scene.add(directionalLight);
     }
@@ -164,6 +167,13 @@ class World {
         this.composer.addPass(renderPixelatedPass);
 
         this.loop.setPostProcessingComposer(this.composer);
+    }
+
+    setCamera(camera) {
+        this.camera = camera;
+        for (const pass of this.composer.passes) {
+            pass.camera = camera;
+        }
     }
 
     start() {

@@ -1,7 +1,7 @@
 import { getWorld } from "../World/World.js";
 
 const setSize = (container, camera, renderer) => {
-    camera.resize();
+    getWorld().camera.resize();
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
