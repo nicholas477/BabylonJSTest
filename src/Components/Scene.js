@@ -17,7 +17,7 @@ let pmremGenerator;
 class Scene extends ThreeScene {
     constructor() {
         super();
-        pmremGenerator = new PMREMGenerator(getWorld().renderer);
+        pmremGenerator = new PMREMGenerator(getWorld().renderer.webGLRenderer);
 
         this.background = new Color(0xcecece);
         //this.fog = new Fog('white', 1024, 4096);

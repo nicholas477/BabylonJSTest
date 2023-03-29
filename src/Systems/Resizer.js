@@ -1,23 +1,23 @@
 import { getWorld } from "../World/World.js";
 
-const setSize = (container, camera, renderer) => {
-    getWorld().camera.resize();
+var resizeListeners = [];
 
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    getWorld().composer.setSize(window.innerWidth, window.innerHeight);
-};
+function registerResizeListener(object) {
+    resizeListeners.push(object);
+}
 
 class Resizer {
-    constructor(container, camera, renderer) {
-        setSize(container, camera, renderer);
-
+    constructor(container) {
         window.addEventListener("resize", () => {
-            // set the size again if a resize occurs
-            setSize(container, camera, renderer);
+            for (const object of resizeListeners) {
+                object.resize(container);
+            }
         });
+
+        for (const object of resizeListeners) {
+            object.resize(container);
+        }
     }
 }
 
-export { Resizer };
+export { Resizer, registerResizeListener };

@@ -4,6 +4,7 @@ import { getKeyValue, registerWheelListener } from "../Systems/Input.js";
 import { v3damp } from "../Utils/VectorUtils.js"
 import { getWorld } from "../World/World.js";
 import { MathUtils } from "three";
+import { registerResizeListener } from "../Systems/Resizer.js";
 
 class CameraControl {
     constructor(camera) {
@@ -96,6 +97,8 @@ class OrthoCamera extends OrthographicCamera {
 
         this.control = new CameraControl(this);
         this.zoom = 1.0;
+
+        registerResizeListener(this);
     }
 
     resize() {

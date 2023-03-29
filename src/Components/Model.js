@@ -4,6 +4,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { pixelTexture } from "../Utils/Texture.js";
 import { registerTicker } from "../Systems/Loop.js";
 import { ThirdPersonController } from "./ThirdPersonController.js";
+import { registerResizeListener } from "../Systems/Resizer.js";
 
 const texLoader = new TextureLoader();
 const texChecker = pixelTexture(texLoader.load('assets/textures/checker.png'));
@@ -53,12 +54,14 @@ loader.load(
 
         });
 
-        getWorld().setCamera(new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000));
-        getWorld().camera.resize = () => {
-            getWorld().camera.aspect = window.innerWidth / window.innerHeight;
-            getWorld().camera.updateProjectionMatrix();
-        }
-        new ThirdPersonController(getWorld().camera, object);
+        const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        getWorld().renderer.setCamera(camera);
+        getWorld().renderer.camera.resize = (container) => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        };
+        registerResizeListener(camera);
+        new ThirdPersonController(camera, object);
 
         object.scale.setScalar(0.01);
         getWorld().scene.add(object);

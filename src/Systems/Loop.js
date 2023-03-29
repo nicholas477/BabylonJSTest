@@ -9,9 +9,7 @@ function registerTicker(object) {
 }
 
 class Loop {
-    constructor(container, camera, scene, renderer) {
-        this.camera = camera;
-        this.scene = scene;
+    constructor(container, renderer) {
         this.renderer = renderer;
         this.deltaTime = 1000 / 60;
 
@@ -19,26 +17,18 @@ class Loop {
         container.appendChild(this.stats.domElement);
     }
 
-    setPostProcessingComposer(composer) {
-        this.composer = composer;
-    }
-
     start() {
-        this.renderer.setAnimationLoop(() => {
+        this.renderer.webGLRenderer.setAnimationLoop(() => {
+            this.stats.begin();
             this.tick();
 
-            // render a frame
-            this.stats.begin();
-            //this.renderer.render(this.scene, this.camera);
-            if (this.composer !== null) {
-                this.composer.render();
-            }
+            this.renderer.render();
             this.stats.end();
         });
     }
 
     stop() {
-        this.renderer.setAnimationLoop(null);
+        this.renderer.webGLRenderer.setAnimationLoop(null);
     }
 
     tick() {

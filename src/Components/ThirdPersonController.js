@@ -3,8 +3,8 @@ import { registerTicker } from "../Systems/Loop.js";
 import { getKeyValue } from "../Systems/Input.js";
 import { getWorld } from "../World/World.js";
 
-const cameraOffset = new Vector3(0.0, 2.0, 0.0);
-const cameraPivotOffset = new Vector3(0.0, 0.0, -1.0);
+const cameraOffset = new Vector3(-0.5, 2.0, 0.0);
+const cameraPivotOffset = new Vector3(0.0, 0.0, -1.5);
 
 class ThirdPersonController {
     constructor(camera, target, options = {}) {
@@ -80,10 +80,5 @@ class ThirdPersonController {
         }
     }
 }
-
-//const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-// const target = new Object3D();
-// const controller = new ThirdPersonController(camera, target);
-
 
 export { ThirdPersonController }
