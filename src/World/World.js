@@ -12,12 +12,11 @@ import { MapControls } from 'three/addons/controls/OrbitControls.js';
 
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
-import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
+import { SAOPass } from 'three/addons/postprocessing/SAOPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 var world;
-var gui;
 
 function getWorld() {
     return world;
@@ -36,9 +35,9 @@ class World {
         this.renderer = new Renderer();
         this.scene = new Scene();
 
-        // Init gui
-        gui = new GUI();
-        gui.add(this.renderer, 'toneMappingExposure', 0.1, 2);
+        // Init this.gui
+        this.gui = new GUI();
+        this.gui.add(this.renderer, 'toneMappingExposure', 0.1, 2);
 
 
         this.addLighting();
@@ -64,6 +63,7 @@ class World {
     }
 
     addLighting() {
+        const lightingFolder = this.gui.addFolder("Lighting");
         const hemiLight = new HemisphereLight(
             0xffeeb1, // bright sky color
             0x080820, // dim ground color
@@ -71,7 +71,7 @@ class World {
         );
         this.scene.add(hemiLight);
 
-        gui.add(hemiLight, 'intensity').min(0).max(10);
+        lightingFolder.add(hemiLight, 'intensity').min(0).max(10).name("Ambient Light Intensity");
 
         // var ambientLight = new AmbientLight(0xcccccc, 0.0);
         // this.scene.add(ambientLight);
@@ -89,6 +89,8 @@ class World {
         directionalLight.shadow.mapSize.height = 2048; // default
         // directionalLight.shadow.camera.near = 0.5; // default
         // directionalLight.shadow.camera.far = 500; // default
+
+        lightingFolder.add(directionalLight, 'intensity').min(0).max(10).name("Direction Light Intensity");
 
         directionalLight.tick = (deltaTime) => {
             let time = getWorld().getTime() / 30.0;
@@ -111,20 +113,40 @@ class World {
         this.composer = new EffectComposer(this.renderer);
 
         const renderScene = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderScene);
 
-        const ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);
-        //ssaoPass.minDistance = 1.0;
-        //ssaoPass.maxDistance = 32.0;
-        //ssaoPass.kernelRadius = 16;
-        gui.add(ssaoPass, 'minDistance', 0.1, 8);
-        gui.add(ssaoPass, 'maxDistance', 0.1, 256);
-        gui.add(ssaoPass, 'kernelRadius', 1, 16);
+        const saoPass = new SAOPass(this.scene, this.camera, false, true);
+        saoPass.params.saoBias = 10;
+        saoPass.params.saoIntensity = 0.385;
+        saoPass.params.saoScale = 256;
+        saoPass.params.saoKernelRadius = 8;
+        this.composer.addPass(saoPass);
+
+        const ssaoFolder = this.gui.addFolder("SSAO");
+        ssaoFolder.add(saoPass.params, 'output', {
+            'Beauty': SAOPass.OUTPUT.Beauty,
+            'Beauty+SAO': SAOPass.OUTPUT.Default,
+            'SAO': SAOPass.OUTPUT.SAO,
+            'Depth': SAOPass.OUTPUT.Depth,
+            'Normal': SAOPass.OUTPUT.Normal
+        }).onChange(function (value) {
+            saoPass.params.output = parseInt(value);
+        });
+        ssaoFolder.add(saoPass.params, 'saoBias', - 1024, 1024);
+        ssaoFolder.add(saoPass.params, 'saoIntensity', 0, 1);
+        ssaoFolder.add(saoPass.params, 'saoScale', 0, 1024);
+        ssaoFolder.add(saoPass.params, 'saoKernelRadius', 0, 1024);
+        ssaoFolder.add(saoPass.params, 'saoMinResolution', 0, 1);
+        ssaoFolder.add(saoPass.params, 'saoBlur');
+        ssaoFolder.add(saoPass.params, 'saoBlurRadius', 0, 200);
+        ssaoFolder.add(saoPass.params, 'saoBlurStdDev', 0.5, 150);
+        ssaoFolder.add(saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1);
         //this.composer.addPass(ssaoPass);
 
         // const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
-        // gui.add(bloomPass, 'threshold').min(0).max(10);
-        // gui.add(bloomPass, 'strength').min(0).max(10);
-        // gui.add(bloomPass, 'radius').min(0).max(10);
+        // this.gui.add(bloomPass, 'threshold').min(0).max(10);
+        // this.gui.add(bloomPass, 'strength').min(0).max(10);
+        // this.gui.add(bloomPass, 'radius').min(0).max(10);
         // bloomPass.threshold = params.bloomThreshold;
         // bloomPass.strength = params.bloomStrength;
         // bloomPass.radius = params.bloomRadius;
@@ -134,9 +156,11 @@ class World {
         const renderPixelatedPass = new RenderPixelatedPass(3, this.scene, this.camera);
         renderPixelatedPass.depthEdgeStrength = 1.0;
         renderPixelatedPass.normalEdgeStrength = 0.1;
-        gui.add(renderPixelatedPass, 'enabled');
-        gui.add(renderPixelatedPass, 'depthEdgeStrength', 0, 10);
-        gui.add(renderPixelatedPass, 'normalEdgeStrength', 0, 10);
+
+        const pixelationFolder = this.gui.addFolder("Pixelation");
+        pixelationFolder.add(renderPixelatedPass, 'enabled');
+        pixelationFolder.add(renderPixelatedPass, 'depthEdgeStrength', 0, 10);
+        pixelationFolder.add(renderPixelatedPass, 'normalEdgeStrength', 0, 10);
         this.composer.addPass(renderPixelatedPass);
 
         this.loop.setPostProcessingComposer(this.composer);
@@ -163,4 +187,4 @@ class World {
     }
 }
 
-export { World, getWorld, setWorld };
+export { World, getWorld };

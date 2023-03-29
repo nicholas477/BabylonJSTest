@@ -2,14 +2,14 @@ import { MeshPhysicalMaterial, MeshLambertMaterial, Mesh, Vector3, TextureLoader
 import { getWorld } from "../World/World.js";
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { pixelTexture } from "../Utils/Texture.js";
-
+import { registerTicker } from "../Systems/Loop.js";
 
 const texLoader = new TextureLoader();
 const texChecker = pixelTexture(texLoader.load('assets/textures/checker.png'));
 const texChecker2 = pixelTexture(texLoader.load('assets/textures/checker.png'));
 texChecker.repeat.set(1, 1);
 
-const defaultMaterial = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xffffff, roughness: 0.0, map: texChecker });
+const defaultMaterial = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xffffff, roughness: 0.5, map: texChecker });
 const loader = new OBJLoader();
 loader.load(
     // resource URL
@@ -58,9 +58,14 @@ loader.load(
 
         });
 
+        object.tick = (deltaTime) => {
+            object.rotation.y = getWorld().getTime();
+        }
+        registerTicker(object);
         object.scale.setScalar(0.01);
         getWorld().scene.add(object);
-
+        getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
+        getWorld().gui.add(defaultMaterial, "roughness", 0, 1);
     },
     // called when loading is in progresses
     function (xhr) {

@@ -1,4 +1,4 @@
-import { World, setWorld } from "./World/World.js";
+import { World } from "./World/World.js";
 import { registerInputSystem } from "./Systems/Input.js";
 
 function main() {

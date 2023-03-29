@@ -29,7 +29,7 @@ class Loop {
 
             // render a frame
             this.stats.begin();
-            this.renderer.render(this.scene, this.camera);
+            //this.renderer.render(this.scene, this.camera);
             if (this.composer !== null) {
                 this.composer.render();
             }
