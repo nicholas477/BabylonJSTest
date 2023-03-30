@@ -46,8 +46,6 @@ class Renderer {
         const parameters = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat, type: FloatType };
         this.hdrRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
         this.composer = new EffectComposer(this.webGLRenderer, this.hdrRenderTarget);
-
-        this.recreatePasses();
     }
 
     recreatePasses() {
