@@ -8,7 +8,7 @@ import { PixelationPass as RenderPixelatedPass } from "./Renderer/Passes/Pixelat
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SAOPass } from 'three/addons/postprocessing/SAOPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { AdaptiveToneMappingPass } from 'three/addons/postprocessing/AdaptiveToneMappingPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 import { ACESFilmicToneMappingShader } from './Renderer/Shaders/ACESFilmicToneMappingShader.js';
 import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
 
@@ -54,6 +54,7 @@ class Renderer {
         this.createPixelationPass();
         this.createTonemappingPass();
         this.createGammaCorrectionPass();
+        this.createAAPass();
     }
 
     createBasePass() {
@@ -209,6 +210,26 @@ class Renderer {
         this.gammaCorrectionFolder = this.rendererFolder.addFolder("Gamma Correction");
         this.gammaCorrectionFolder.add(this.gammaCorrectionPass, 'enabled').name("Enabled");
         this.composer.addPass(this.gammaCorrectionPass);
+    }
+
+    createAAPass() {
+        if (this.SMAAPass) {
+            this.composer.removePass(this.SMAAPass);
+            this.SMAAPass.dispose();
+            this.SMAAPass = null;
+        }
+
+        if (this.SMAAPassFolder) {
+            this.SMAAPassFolder.destroy();
+            this.SMAAPassFolder = null;
+        }
+
+        if (params.usePixelation == true) {
+            return;
+        }
+
+        this.SMAAPass = new SMAAPass(window.innerWidth, window.innerHeight);
+        this.composer.addPass(this.SMAAPass);
     }
 
     setScene(scene) {
