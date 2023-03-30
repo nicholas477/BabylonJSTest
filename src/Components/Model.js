@@ -6,9 +6,10 @@ import { registerTicker } from "../Systems/Loop.js";
 import { ThirdPersonController } from "./ThirdPersonController.js";
 import { registerResizeListener } from "../Systems/Resizer.js";
 
+const modelPath = 'assets/models/';
+
 const texLoader = new TextureLoader();
 const texChecker = pixelTexture(texLoader.load('assets/textures/checker.png'));
-const texChecker2 = pixelTexture(texLoader.load('assets/textures/checker.png'));
 texChecker.repeat.set(1, 1);
 
 const loader = new OBJLoader();
@@ -45,8 +46,7 @@ function loadModel(path, pos, onLoaded) {
     );
 }
 
-loadModel('assets/powerplant.obj');
-loadModel('assets/kaiju.obj', null, (object) => {
+function constructCharacter(object) {
     const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     getWorld().renderer.setCamera(camera);
     getWorld().renderer.camera.resize = (container) => {
@@ -57,8 +57,14 @@ loadModel('assets/kaiju.obj', null, (object) => {
     new ThirdPersonController(camera, object);
     getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
     getWorld().gui.add(defaultMaterial, "roughness", 0, 1);
-});
-loadModel('assets/building_1.obj', new Vector3(0, 0, 2.56));
+}
+
+loadModel(modelPath + 'powerplant.obj');
+loadModel(modelPath + 'kaiju.obj', null);
+loadModel(modelPath + 'building_1.obj', new Vector3(0, 0, 2.56));
+loadModel(modelPath + 'building_1.obj', new Vector3(2.56, 0, 2.56));
+loadModel(modelPath + 'building_2.obj', new Vector3(2.56 + 1.28, 0, 1.28));
+loadModel(modelPath + 'building_3.obj', new Vector3(2.56 + 2.56, 0, 1.28));
 
 class Model extends Mesh {
     constructor() {

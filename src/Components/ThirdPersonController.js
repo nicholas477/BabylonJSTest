@@ -67,6 +67,8 @@ class ThirdPersonController {
         if (this.isRMD) {
             this.target.rotateY(MathUtils.degToRad(-e.movementX * this.sensitivity));
             cameraPivotOffsetRot.x += MathUtils.degToRad(e.movementY * this.sensitivity);
+            cameraPivotOffsetRot.x = MathUtils.clamp(cameraPivotOffsetRot.x, -MathUtils.degToRad(89), MathUtils.degToRad(89));
+            console.log(cameraPivotOffsetRot);
         }
     }
 
