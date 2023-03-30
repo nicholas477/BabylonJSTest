@@ -46,15 +46,28 @@ function loadModel(path, pos, onLoaded) {
     );
 }
 
+var createCamera = true;
+
 function constructCharacter(object) {
-    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    getWorld().renderer.setCamera(camera);
-    getWorld().renderer.camera.resize = (container) => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    };
-    registerResizeListener(camera);
-    new ThirdPersonController(camera, object);
+    let camera;
+
+    if (createCamera) {
+        camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        getWorld().renderer.setCamera(camera);
+        getWorld().renderer.camera.resize = (container) => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        };
+        registerResizeListener(camera);
+    }
+
+    if (camera) {
+        new ThirdPersonController(camera, object);
+    }
+    else {
+        console.log("asdf");
+        new ThirdPersonController(null, object);
+    }
     getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
     getWorld().gui.add(defaultMaterial, "roughness", 0, 1);
 }

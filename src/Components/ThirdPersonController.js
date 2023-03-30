@@ -43,13 +43,13 @@ class ThirdPersonController {
         const move = this.moveVector;
 
         move.set(0, 0, 0);
-        if (getKeyValue('w')) move.z -= 1;
-        if (getKeyValue('s')) move.z += 1;
-        if (getKeyValue('a')) move.x -= 1;
-        if (getKeyValue('d')) move.x += 1;
+        if (getKeyValue('w')) move.z += 1;
+        if (getKeyValue('s')) move.z -= 1;
+        if (getKeyValue('a')) move.x += 1;
+        if (getKeyValue('d')) move.x -= 1;
 
         if (move.length()) {
-            move.applyQuaternion(this.camera.quaternion);
+            move.applyQuaternion(this.target.quaternion);
             move.y = 0;
             move.normalize().multiplyScalar(this.speed * dt);
             this.target.position.add(move);
@@ -59,8 +59,10 @@ class ThirdPersonController {
         this.pivot.copy(this.target.position).add(cameraOffset.clone().applyEuler(targetRot));
         const pivotToCam = cameraPivotOffset.clone();
 
-        this.camera.position.copy(this.pivot).add(pivotToCam.applyEuler(cameraPivotOffsetRot).applyEuler(targetRot));
-        this.camera.lookAt(this.pivot);
+        if (this.camera) {
+            this.camera.position.copy(this.pivot).add(pivotToCam.applyEuler(cameraPivotOffsetRot).applyEuler(targetRot));
+            this.camera.lookAt(this.pivot);
+        }
     }
 
     onMouseMove(e) {
@@ -68,7 +70,6 @@ class ThirdPersonController {
             this.target.rotateY(MathUtils.degToRad(-e.movementX * this.sensitivity));
             cameraPivotOffsetRot.x += MathUtils.degToRad(e.movementY * this.sensitivity);
             cameraPivotOffsetRot.x = MathUtils.clamp(cameraPivotOffsetRot.x, -MathUtils.degToRad(89), MathUtils.degToRad(89));
-            console.log(cameraPivotOffsetRot);
         }
     }
 
