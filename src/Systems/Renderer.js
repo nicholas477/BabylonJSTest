@@ -4,13 +4,15 @@ import { registerResizeListener } from "./Resizer.js";
 import { getWorld } from "../World/World.js";
 
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import { PixelationPass as RenderPixelatedPass } from "./Renderer/Passes/PixelationPass.js";
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SAOPass } from 'three/addons/postprocessing/SAOPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { AdaptiveToneMappingPass } from 'three/addons/postprocessing/AdaptiveToneMappingPass.js';
-import { ACESFilmicToneMappingShader } from '../Shaders/ACESFilmicToneMappingShader.js';
+import { ACESFilmicToneMappingShader } from './Renderer/Shaders/ACESFilmicToneMappingShader.js';
 import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
+
+var usePixelation = false;
 
 class Renderer {
     constructor(scene, camera) {
@@ -18,15 +20,21 @@ class Renderer {
         this.camera = camera;
 
         this.rendererFolder = getWorld().gui.addFolder("Renderer");
+        const params = {
+            usePixelation: false
+        };
+        this.rendererFolder.add(params, 'usePixelation').name("Use Pixelation").onChange(function (value) {
+            usePixelation = value;
+            getWorld().renderer.recreatePasses();
+        });
 
-        this.webGLRenderer = new WebGLRenderer({ antialias: true });
+        this.webGLRenderer = new WebGLRenderer();
         this.webGLRenderer.setPixelRatio(window.devicePixelRatio);
         this.webGLRenderer.setSize(window.innerWidth, window.innerHeight);
         this.webGLRenderer.shadowMap.type = PCFSoftShadowMap;
         this.webGLRenderer.shadowMap.enabled = true;
-        // this.webGLRenderer.gammaFactor = 2.2;
+        this.webGLRenderer.gammaFactor = 1.0;
         this.webGLRenderer.toneMapping = LinearToneMapping;
-        //this.webGLRenderer.toneMappingExposure = 0.85;
         this.webGLRenderer.outputEncoding = LinearEncoding;
 
         this.initializeComposer();
@@ -39,23 +47,58 @@ class Renderer {
         this.hdrRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
         this.composer = new EffectComposer(this.webGLRenderer, this.hdrRenderTarget);
 
-        const renderScene = new RenderPass(this.scene, this.camera);
-        this.composer.addPass(renderScene);
+        this.recreatePasses();
+    }
 
+    recreatePasses() {
+        this.createBasePass();
         this.createSSAOPass();
-        this.createTonemappingPass();
         this.createBloomPass();
+        this.createPixelationPass();
+        this.createTonemappingPass();
         this.createGammaCorrectionPass();
+    }
 
-        //     const renderPixelatedPass = new RenderPixelatedPass(3, this.scene, this.camera);
-        //     renderPixelatedPass.depthEdgeStrength = 1.0;
-        //     renderPixelatedPass.normalEdgeStrength = 0.1;
+    createBasePass() {
+        if (this.basePass) {
+            this.composer.removePass(this.basePass);
+            this.basePass.dispose();
+            this.basePass = null;
+        }
 
-        //     const pixelationFolder = this.gui.addFolder("Pixelation");
-        //     pixelationFolder.add(renderPixelatedPass, 'enabled');
-        //     pixelationFolder.add(renderPixelatedPass, 'depthEdgeStrength', 0, 10);
-        //     pixelationFolder.add(renderPixelatedPass, 'normalEdgeStrength', 0, 10);
-        //     this.composer.addPass(renderPixelatedPass);
+        if (usePixelation == true) {
+            return;
+        }
+
+        this.basePass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(this.basePass);
+    }
+
+    createPixelationPass() {
+        if (this.pixelationPass) {
+            this.composer.removePass(this.pixelationPass);
+            this.pixelationPass.dispose();
+            this.pixelationPass = null;
+        }
+
+        if (this.pixelationFolder) {
+            this.pixelationFolder.destroy();
+            this.pixelationFolder = null;
+        }
+
+        if (usePixelation == false) {
+            return;
+        }
+
+        this.pixelationPass = new RenderPixelatedPass(3, this.scene, this.camera);
+        this.pixelationPass.depthEdgeStrength = 1.0;
+        this.pixelationPass.normalEdgeStrength = 0.1;
+
+        this.pixelationFolder = this.rendererFolder.addFolder("Pixelation");
+        this.pixelationFolder.add(this.pixelationPass, 'enabled');
+        this.pixelationFolder.add(this.pixelationPass, 'depthEdgeStrength', 0, 10);
+        this.pixelationFolder.add(this.pixelationPass, 'normalEdgeStrength', 0, 10);
+        this.composer.addPass(this.pixelationPass);
     }
 
     createSSAOPass() {
@@ -68,6 +111,10 @@ class Renderer {
         if (this.ssaoFolder) {
             this.ssaoFolder.destroy();
             this.ssaoFolder = null;
+        }
+
+        if (usePixelation == true) {
+            return;
         }
 
         this.saoPass = new SAOPass(this.scene, this.camera, false, true);
@@ -85,7 +132,7 @@ class Renderer {
             'Depth': SAOPass.OUTPUT.Depth,
             'Normal': SAOPass.OUTPUT.Normal
         }).onChange(function (value) {
-            this.saoPass.params.output = parseInt(value);
+            getWorld().renderer.saoPass.params.output = parseInt(value);
         });
         this.ssaoFolder.add(this.saoPass.params, 'saoBias', - 1024, 1024);
         this.ssaoFolder.add(this.saoPass.params, 'saoIntensity', 0, 1);
@@ -110,14 +157,17 @@ class Renderer {
             this.bloomFolder = null;
         }
 
+        if (usePixelation == true) {
+            return;
+        }
+
         this.bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
         this.bloomFolder = this.rendererFolder.addFolder("Bloom");
+        this.bloomPass.threshold = 1.5;
+        this.bloomPass.strength = 0.5;
         this.bloomFolder.add(this.bloomPass, 'threshold').min(0).max(10);
         this.bloomFolder.add(this.bloomPass, 'strength').min(0).max(10);
         this.bloomFolder.add(this.bloomPass, 'radius').min(0).max(10);
-        // bloomPass.threshold = params.bloomThreshold;
-        // bloomPass.strength = params.bloomStrength;
-        // bloomPass.radius = params.bloomRadius;
         this.composer.addPass(this.bloomPass);
     }
 
@@ -128,8 +178,15 @@ class Renderer {
             this.tonemappingPass = null;
         }
 
+        if (this.tonemappingFolder) {
+            this.tonemappingFolder.destroy();
+            this.tonemappingFolder = null;
+        }
+
         this.tonemappingPass = new ShaderPass(ACESFilmicToneMappingShader, 'tDiffuse');
-        this.rendererFolder.add(this.tonemappingPass.uniforms.exposure, 'value', 0.0, 2).name("Exposure");
+        this.tonemappingFolder = this.rendererFolder.addFolder("Tonemapping");
+        this.tonemappingPass.uniforms.exposure['value'] = 1 / 3;
+        this.tonemappingFolder.add(this.tonemappingPass.uniforms.exposure, 'value', 0.0, 2).name("Exposure");
         this.composer.addPass(this.tonemappingPass);
     }
 
@@ -157,9 +214,7 @@ class Renderer {
             pass.camera = camera;
         }
 
-        this.createSSAOPass();
-        this.createBloomPass();
-        //this.createTonemappingPass()
+        this.recreatePasses();
     }
 
     resize(container) {
@@ -170,9 +225,7 @@ class Renderer {
             pass.setSize(window.innerWidth, window.innerHeight);
         }
 
-        this.createSSAOPass();
-        this.createBloomPass();
-        //this.createTonemappingPass();
+        this.recreatePasses();
     }
 
     render() {
