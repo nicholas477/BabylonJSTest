@@ -95,7 +95,7 @@ class Renderer {
         this.pixelationPass.normalEdgeStrength = 0.1;
 
         this.pixelationFolder = this.rendererFolder.addFolder("Pixelation");
-        this.pixelationFolder.add(this.pixelationPass, 'enabled');
+        this.pixelationFolder.add(this.pixelationPass, 'enabled').name("Enabled");
         this.pixelationFolder.add(this.pixelationPass, 'depthEdgeStrength', 0, 10);
         this.pixelationFolder.add(this.pixelationPass, 'normalEdgeStrength', 0, 10);
         this.composer.addPass(this.pixelationPass);
@@ -125,6 +125,7 @@ class Renderer {
         this.composer.addPass(this.saoPass);
 
         this.ssaoFolder = this.rendererFolder.addFolder("SSAO");
+        this.ssaoFolder.add(this.saoPass, 'enabled').name("Enabled");
         this.ssaoFolder.add(this.saoPass.params, 'output', {
             'Beauty': SAOPass.OUTPUT.Beauty,
             'Beauty+SAO': SAOPass.OUTPUT.Default,
@@ -165,6 +166,7 @@ class Renderer {
         this.bloomFolder = this.rendererFolder.addFolder("Bloom");
         this.bloomPass.threshold = 1.5;
         this.bloomPass.strength = 0.5;
+        this.bloomFolder.add(this.bloomPass, 'enabled').name("Enabled");
         this.bloomFolder.add(this.bloomPass, 'threshold').min(0).max(10);
         this.bloomFolder.add(this.bloomPass, 'strength').min(0).max(10);
         this.bloomFolder.add(this.bloomPass, 'radius').min(0).max(10);
@@ -185,6 +187,7 @@ class Renderer {
 
         this.tonemappingPass = new ShaderPass(ACESFilmicToneMappingShader, 'tDiffuse');
         this.tonemappingFolder = this.rendererFolder.addFolder("Tonemapping");
+        this.tonemappingFolder.add(this.tonemappingPass, 'enabled').name("Enabled");
         this.tonemappingPass.uniforms.exposure['value'] = 1 / 3;
         this.tonemappingFolder.add(this.tonemappingPass.uniforms.exposure, 'value', 0.0, 2).name("Exposure");
         this.composer.addPass(this.tonemappingPass);
@@ -197,7 +200,14 @@ class Renderer {
             this.gammaCorrectionPass = null;
         }
 
+        if (this.gammaCorrectionFolder) {
+            this.gammaCorrectionFolder.destroy();
+            this.gammaCorrectionFolder = null;
+        }
+
         this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+        this.gammaCorrectionFolder = this.rendererFolder.addFolder("Gamma Correction");
+        this.gammaCorrectionFolder.add(this.gammaCorrectionPass, 'enabled').name("Enabled");
         this.composer.addPass(this.gammaCorrectionPass);
     }
 
