@@ -71,13 +71,13 @@ class ThirdPersonController {
     }
 
     onMouseDown(e) {
-        if (e.button === 1) {
+        if (e.button === 0) {
             this.isRMD = true;
         }
     }
 
     onMouseUp(e) {
-        if (e.button === 1) {
+        if (e.button === 0) {
             this.isRMD = false;
         }
     }
