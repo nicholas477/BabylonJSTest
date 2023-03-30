@@ -4,6 +4,7 @@ import { getKeyValue } from "../Systems/Input.js";
 import { getWorld } from "../World/World.js";
 
 const cameraOffset = new Vector3(-0.5, 2.0, 0.0);
+var cameraPivotOffsetRot = new Euler();
 const cameraPivotOffset = new Vector3(0.0, 0.0, -1.5);
 
 class ThirdPersonController {
@@ -58,13 +59,14 @@ class ThirdPersonController {
         this.pivot.copy(this.target.position).add(cameraOffset.clone().applyEuler(targetRot));
         const pivotToCam = cameraPivotOffset.clone();
 
-        this.camera.position.copy(this.pivot).add(pivotToCam.applyEuler(targetRot));
+        this.camera.position.copy(this.pivot).add(pivotToCam.applyEuler(cameraPivotOffsetRot).applyEuler(targetRot));
         this.camera.lookAt(this.pivot);
     }
 
     onMouseMove(e) {
         if (this.isRMD) {
             this.target.rotateY(MathUtils.degToRad(-e.movementX * this.sensitivity));
+            cameraPivotOffsetRot.x += MathUtils.degToRad(e.movementY * this.sensitivity);
         }
     }
 

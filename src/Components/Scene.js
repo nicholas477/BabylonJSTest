@@ -20,8 +20,6 @@ class Scene extends ThreeScene {
         pmremGenerator = new PMREMGenerator(getWorld().renderer.webGLRenderer);
 
         this.background = new Color(0xcecece);
-        //this.fog = new Fog('white', 1024, 4096);
-        //this.fog = new FogExp2(0xcccccc, 0.0003);
 
         new EXRLoader().load('assets/textures/piz_compressed.exr', function (texture) {
 

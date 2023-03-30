@@ -11,70 +11,54 @@ const texChecker = pixelTexture(texLoader.load('assets/textures/checker.png'));
 const texChecker2 = pixelTexture(texLoader.load('assets/textures/checker.png'));
 texChecker.repeat.set(1, 1);
 
-const defaultMaterial = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xffffff, roughness: 0.5, map: texChecker });
 const loader = new OBJLoader();
-loader.load(
-    // resource URL
-    'assets/powerplant.obj',
-    // called when resource is loaded
-    function (object) {
-        object.traverse(function (child) {
+const defaultMaterial = new MeshPhysicalMaterial({ metalness: 0.0, color: 0xffffff, roughness: 0.5, map: texChecker });
 
-            if (child.isMesh) {
-                child.material = defaultMaterial;
-                child.receiveShadow = true;
-                child.castShadow = true;
+function loadModel(path, pos, onLoaded) {
+    loader.load(
+        // resource URL
+        path,
+        // called when resource is loaded
+        function (object) {
+            object.traverse(function (child) {
+
+                if (child.isMesh) {
+                    child.material = defaultMaterial;
+                    child.receiveShadow = true;
+                    child.castShadow = true;
+                }
+
+            });
+            object.scale.setScalar(0.01);
+            getWorld().scene.add(object);
+            if (pos != null) {
+                object.position.copy(pos);
             }
-
-        });
-        object.scale.setScalar(0.01);
-        getWorld().scene.add(object);
-
-    },
-    // called when loading is in progresses
-    function (xhr) {
-
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-    }
-);
-
-loader.load(
-    // resource URL
-    'assets/kaiju.obj',
-    // called when resource is loaded
-    function (object) {
-        object.traverse(function (child) {
-
-            if (child.isMesh) {
-                child.material = defaultMaterial;
-                child.receiveShadow = true;
-                child.castShadow = true;
+            if (onLoaded != null) {
+                onLoaded(object);
             }
+        },
+        // called when loading is in progresses
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }
+    );
+}
 
-        });
-
-        const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        getWorld().renderer.setCamera(camera);
-        getWorld().renderer.camera.resize = (container) => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        };
-        registerResizeListener(camera);
-        new ThirdPersonController(camera, object);
-
-        object.scale.setScalar(0.01);
-        getWorld().scene.add(object);
-        getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
-        getWorld().gui.add(defaultMaterial, "roughness", 0, 1);
-    },
-    // called when loading is in progresses
-    function (xhr) {
-
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-    }
-);
+loadModel('assets/powerplant.obj');
+loadModel('assets/kaiju.obj', null, (object) => {
+    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    getWorld().renderer.setCamera(camera);
+    getWorld().renderer.camera.resize = (container) => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    };
+    registerResizeListener(camera);
+    new ThirdPersonController(camera, object);
+    getWorld().gui.add(defaultMaterial, "metalness", 0, 1);
+    getWorld().gui.add(defaultMaterial, "roughness", 0, 1);
+});
+loadModel('assets/building_1.obj', new Vector3(0, 0, 2.56));
 
 class Model extends Mesh {
     constructor() {
