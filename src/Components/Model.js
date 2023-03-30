@@ -60,11 +60,12 @@ function constructCharacter(object) {
 }
 
 loadModel(modelPath + 'powerplant.obj');
-loadModel(modelPath + 'kaiju.obj', null);
+loadModel(modelPath + 'kaiju.obj', null, constructCharacter);
 loadModel(modelPath + 'building_1.obj', new Vector3(0, 0, 2.56));
 loadModel(modelPath + 'building_1.obj', new Vector3(2.56, 0, 2.56));
 loadModel(modelPath + 'building_2.obj', new Vector3(2.56 + 1.28, 0, 1.28));
 loadModel(modelPath + 'building_3.obj', new Vector3(2.56 + 2.56, 0, 1.28));
+loadModel(modelPath + 'building_4.obj', new Vector3(2.56 + 2.56, 0, 2.56));
 
 class Model extends Mesh {
     constructor() {

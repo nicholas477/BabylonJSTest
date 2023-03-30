@@ -13,7 +13,7 @@ import { ACESFilmicToneMappingShader } from './Renderer/Shaders/ACESFilmicToneMa
 import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
 
 var params = {
-    usePixelation: false,
+    usePixelation: true,
     pixelSize: 3
 };
 
