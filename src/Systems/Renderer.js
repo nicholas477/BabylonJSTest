@@ -12,7 +12,10 @@ import { AdaptiveToneMappingPass } from 'three/addons/postprocessing/AdaptiveTon
 import { ACESFilmicToneMappingShader } from './Renderer/Shaders/ACESFilmicToneMappingShader.js';
 import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
 
-var usePixelation = false;
+var params = {
+    usePixelation: false,
+    pixelSize: 3
+};
 
 class Renderer {
     constructor(scene, camera) {
@@ -20,11 +23,7 @@ class Renderer {
         this.camera = camera;
 
         this.rendererFolder = getWorld().gui.addFolder("Renderer");
-        const params = {
-            usePixelation: false
-        };
         this.rendererFolder.add(params, 'usePixelation').name("Use Pixelation").onChange(function (value) {
-            usePixelation = value;
             getWorld().renderer.recreatePasses();
         });
 
@@ -64,7 +63,7 @@ class Renderer {
             this.basePass = null;
         }
 
-        if (usePixelation == true) {
+        if (params.usePixelation == true) {
             return;
         }
 
@@ -84,16 +83,19 @@ class Renderer {
             this.pixelationFolder = null;
         }
 
-        if (usePixelation == false) {
+        if (params.usePixelation == false) {
             return;
         }
 
-        this.pixelationPass = new RenderPixelatedPass(3, this.scene, this.camera);
+        this.pixelationPass = new RenderPixelatedPass(params.pixelSize, this.scene, this.camera);
         this.pixelationPass.depthEdgeStrength = 1.0;
         this.pixelationPass.normalEdgeStrength = 0.1;
 
         this.pixelationFolder = this.rendererFolder.addFolder("Pixelation");
         this.pixelationFolder.add(this.pixelationPass, 'enabled').name("Enabled");
+        this.pixelationFolder.add(params, 'pixelSize', 0, 10).step(1).name("Pixel Size").onChange(() => {
+            getWorld().renderer.pixelationPass.setPixelSize(params.pixelSize);
+        });
         this.pixelationFolder.add(this.pixelationPass, 'depthEdgeStrength', 0, 10);
         this.pixelationFolder.add(this.pixelationPass, 'normalEdgeStrength', 0, 10);
         this.composer.addPass(this.pixelationPass);
@@ -111,7 +113,7 @@ class Renderer {
             this.ssaoFolder = null;
         }
 
-        if (usePixelation == true) {
+        if (params.usePixelation == true) {
             return;
         }
 
@@ -156,7 +158,7 @@ class Renderer {
             this.bloomFolder = null;
         }
 
-        if (usePixelation == true) {
+        if (params.usePixelation == true) {
             return;
         }
 

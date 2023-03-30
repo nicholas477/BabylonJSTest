@@ -1,7 +1,7 @@
 import { OrthographicCamera, PerspectiveCamera, Vector3, Vector4, Matrix3, Matrix4 } from "three";
 import { registerTicker } from "../Systems/Loop.js";
 import { getKeyValue, registerWheelListener } from "../Systems/Input.js";
-import { v3damp } from "../Utils/VectorUtils.js"
+import { damp, v3damp } from "../Utils/MathUtils.js"
 import { getWorld } from "../World/World.js";
 import { MathUtils } from "three";
 import { registerResizeListener } from "../Systems/Resizer.js";
@@ -35,7 +35,7 @@ class CameraControl {
         cameraTarget.add(new Vector3(-this.cameraSpeed, 0, this.cameraSpeed).multiplyScalar(getKeyValue('d')));
         cameraTarget.multiplyScalar(1.0 / this.camera.zoom);
 
-        this.velocity.lerp(cameraTarget, 1 - Math.exp(-this.cameraLagSpeed * deltaTime));
+        this.velocity = v3damp(this.velocity, cameraTarget, this.cameraLagSpeed, deltaTime);
         this.camera.position.add(new Vector3().copy(this.velocity).multiplyScalar(deltaTime));
     }
 
@@ -67,7 +67,7 @@ class CameraControl {
 
     tickCameraZoomMovement(deltaTime) {
         if (this.camera instanceof OrthoCamera) {
-            this.camera.zoom = MathUtils.lerp(this.camera.zoom, this.cameraZoomTarget, 1 - Math.exp(-this.cameraZoomLagSpeed * deltaTime));
+            this.camera.zoom = damp(this.camera.zoom, this.cameraZoomTarget, this.cameraZoomLagSpeed, deltaTime);
             this.camera.resize();
         }
         else {
